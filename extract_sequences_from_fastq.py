@@ -6,6 +6,7 @@ from sys import argv, exit, stdout, stderr
 from os import listdir, path
 from collections import defaultdict
 from itertools import chain
+import importlib
 import argparse
 
 from read_fasta import read_fasta, read_fastq
@@ -28,26 +29,20 @@ def parse_args(argv):
     parser.add_argument("-2", "--right", dest="right",
             default="",
             help="Destination FASTQ file for 'right' reads [%(default)s].")
+    parser.add_argument("-t", "--transformer", dest="transformer",
+            required=True,
+            help="Name of data set header transformer module.")
         
     return parser.parse_args()
-
-
-def transform_fasta_header(fastaheader):
-    """
-    Do some string operations on FASTA headers to make them look like FASTQ
-    headers.
-    """
-    fastq_source, read = fastaheader.split(" ", 1)[0].split("_HWI")
-    read_header = "HWI"+read.translate(str.maketrans("_", ":"))
-    fastq_base = fastq_source.rsplit("_", 1)[0]
-    return fastq_base, read_header
-    
 
 
 def main(options):
     """
     Main function.
     """
+
+    # Import the fasta header transformer
+    transform_fasta_header = importlib.import_module("transformers."+options.transformer).transform_fasta_header
 
     # Construct a dictionary with FASTQ basenames, i.e. not including the pair
     # information (e.g. _1.fasta or _2.fasta) as keys. Values are lists of the first
@@ -63,6 +58,7 @@ def main(options):
     fastq_dir = options.fastq_dir
     fastq_files = set(filename for filename in listdir(options.fastq_dir))
 
+    warnings_occurred = False
     if options.left and options.right:
         left_fh = open(options.left, 'w')
         right_fh = open(options.right, 'w')
@@ -92,6 +88,11 @@ def main(options):
                         print(right[3], file=right_fh)
             else:
                 print("WARNING: found no FASTQ files for {}".format(fastq_base), file=stderr)
+                warnings_occurred = True
+    if warnings_occurred:
+        print("WARNING: Possible reasons for warnings include:\n"
+              "  - selecting the wrong transformer\n"
+              "  - including incorrect FASTQ files", file=stderr)
 
 
 if __name__ == "__main__":
