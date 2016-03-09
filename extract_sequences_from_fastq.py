@@ -35,6 +35,7 @@ def parse_args(argv):
 
     if len(argv) < 2:
         parser.print_help()
+        exit()
         
     return parser.parse_args()
 
