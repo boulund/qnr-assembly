@@ -22,15 +22,12 @@ def parse_args(argv):
     parser.add_argument("-q", "--fastq-dir", dest="fastq_dir",
             required=True,
             help="FASTQ directory to read sequences from.")
-    parser.add_argument("-o", "--output", dest="output", metavar="FILE",
+    parser.add_argument("-1", "--left", dest="left",
             default="",
-            help="Filename to write interleaved FASTQ output to, prints to STDOUT if not specified.")
-   # parser.add_argument("-1", "--left", dest="left",
-   #         default="left_reads.fastq",
-   #         help="Destination FASTQ file for 'left' reads [%(default)s].")
-   # parser.add_argument("-2", "--right", dest="right",
-   #         default="right_reads.fastq",
-   #         help="Destination FASTQ file for 'right' reads [%(default)s].")
+            help="Destination FASTQ file for 'left' reads [%(default)s].")
+    parser.add_argument("-2", "--right", dest="right",
+            default="",
+            help="Destination FASTQ file for 'right' reads [%(default)s].")
         
     return parser.parse_args()
 
@@ -65,11 +62,14 @@ def main(options):
     
     fastq_dir = options.fastq_dir
     fastq_files = set(filename for filename in listdir(options.fastq_dir))
-    if options.output:
-        outfile = open(options.output, 'w')
+
+    if options.left and options.right:
+        left_fh = open(options.left, 'w')
+        right_fh = open(options.right, 'w')
     else:
-        outfile = stdout
-    with outfile:
+        left_fh = stdout
+        right_fh = stdout
+    with left_fh, right_fh:
         for fastq_base, read_headers in fastq_bases.items():
             fastq_left = fastq_base+"_1.fastq"
             fastq_right = fastq_base+"_2.fastq"
@@ -78,14 +78,14 @@ def main(options):
                 # very easy to print out the reads in interleaved order.
                 for left, right in zip(read_fastq(path.join(fastq_dir, fastq_left)), 
                                        read_fastq(path.join(fastq_dir, fastq_right))):
-                    print(left[0], file=outfile)
-                    print(left[1], file=outfile)
-                    print(left[2], file=outfile)
-                    print(left[3], file=outfile)
-                    print(right[0], file=outfile)
-                    print(right[1], file=outfile)
-                    print(right[2], file=outfile)
-                    print(right[3], file=outfile)
+                    print(left[0], file=left_fh)
+                    print(left[1], file=left_fh)
+                    print(left[2], file=left_fh)
+                    print(left[3], file=left_fh)
+                    print(right[0], file=right_fh)
+                    print(right[1], file=right_fh)
+                    print(right[2], file=right_fh)
+                    print(right[3], file=right_fh)
             else:
                 print("WARNING: found no FASTQ files for {}".format(fastq_base), file=stderr)
 
