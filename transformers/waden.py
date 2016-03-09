@@ -15,7 +15,7 @@ def transform_fasta_header(fastaheader):
     """
 
     fastq_source, read_header = fastaheader.split(" ", 1)[0].rsplit("_", 1)
-    fastq_base = fastq_source.rsplit("_", 1)[0][:-2]
+    fastq_base = fastq_source.rsplit("_", 1)[0]
     return fastq_base, read_header
 
 
