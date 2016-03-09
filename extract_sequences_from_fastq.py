@@ -25,13 +25,16 @@ def parse_args(argv):
             help="FASTQ directory to read sequences from.")
     parser.add_argument("-1", "--left", dest="left",
             default="",
-            help="Destination FASTQ file for 'left' reads [%(default)s].")
+            help="Destination FASTQ file for 'left' reads.")
     parser.add_argument("-2", "--right", dest="right",
             default="",
-            help="Destination FASTQ file for 'right' reads [%(default)s].")
+            help="Destination FASTQ file for 'right' reads.")
     parser.add_argument("-t", "--transformer", dest="transformer",
             required=True,
             help="Name of data set header transformer module.")
+
+    if len(argv) < 2:
+        parser.print_help()
         
     return parser.parse_args()
 
