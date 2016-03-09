@@ -71,6 +71,7 @@ def main(options):
         right_fh = stdout
     with left_fh, right_fh:
         for fastq_base, read_headers in fastq_bases.items():
+            header_set = set(read_headers)
             fastq_left = fastq_base+"_1.fastq"
             fastq_right = fastq_base+"_2.fastq"
             if fastq_left in fastq_files and fastq_right in fastq_files:
@@ -78,14 +79,17 @@ def main(options):
                 # very easy to print out the reads in interleaved order.
                 for left, right in zip(read_fastq(path.join(fastq_dir, fastq_left)), 
                                        read_fastq(path.join(fastq_dir, fastq_right))):
-                    print(left[0], file=left_fh)
-                    print(left[1], file=left_fh)
-                    print(left[2], file=left_fh)
-                    print(left[3], file=left_fh)
-                    print(right[0], file=right_fh)
-                    print(right[1], file=right_fh)
-                    print(right[2], file=right_fh)
-                    print(right[3], file=right_fh)
+                    left_header = left[0][1:].split(" ", 1)[0]
+                    right_header = right[0][1:].split(" ", 1)[0]
+                    if left_header in header_set or right_header in header_set:
+                        print(left[0], file=left_fh)
+                        print(left[1], file=left_fh)
+                        print(left[2], file=left_fh)
+                        print(left[3], file=left_fh)
+                        print(right[0], file=right_fh)
+                        print(right[1], file=right_fh)
+                        print(right[2], file=right_fh)
+                        print(right[3], file=right_fh)
             else:
                 print("WARNING: found no FASTQ files for {}".format(fastq_base), file=stderr)
 
