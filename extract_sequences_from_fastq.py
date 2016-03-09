@@ -64,7 +64,6 @@ def main(options):
     print("INFO: Number of headers (reads) in dict: {}".format(len(list(chain(*fastq_bases.values())))), file=stderr)
     
     fastq_dir = options.fastq_dir
-    print(listdir(fastq_dir))
     fastq_files = set(filename for filename in listdir(options.fastq_dir))
     if options.output:
         outfile = open(options.output, 'w')
