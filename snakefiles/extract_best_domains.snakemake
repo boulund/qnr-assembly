@@ -40,7 +40,7 @@ rule trim_galore:
 rule spades:
 	input:
 		one="trimmed_reads/left_val_1.fq",
-		two="trimmed_reads/right_val_1.fq"
+		two="trimmed_reads/right_val_2.fq"
 	output:
 		"spades_assembly/contigs.fasta"
 	shell:
