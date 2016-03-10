@@ -1,0 +1,122 @@
+# vi:syntax=python
+# vi:filetype=python
+# coding: utf-8
+#
+# Snakefile for assembling and extracting contiguous qnr domains
+# Fredrik Boulund 2016
+# 
+# Assumes the following folder structure and files:
+# ./
+# ./pmqr.hmm
+# ./selected_reads
+# ./selected_reads/left.fastq
+# ./selected_reads/right.fastq
+
+
+rule all:
+	input:
+		"results/best_domains.distmat",
+		"results/best_domains.aln",
+		"results/most_similar_qnr.txt",
+		"results/four_most_similar_qnr.txt"
+
+
+
+
+
+rule trim_galore:
+	input:
+		left="selected_reads/left.fastq",
+		right="selected_reads/right.fastq"
+	output:
+		left="trimmed_reads/left_val_1.fq",
+		right="trimmed_reads/right_val_1.fq"
+	shell:
+		"""
+		mkdir -p trimmed_reads
+		trim_galore --paired {input.left} {input.right} --output_dir trimmed_reads
+		"""
+
+rule spades:
+	input:
+		one="trimmed_reads/left_val_1.fq",
+		two="trimmed_reads/right_val_1.fq"
+	output:
+		"spades_assembly/contigs.fasta"
+	shell:
+		"""
+		spades.py --meta -1 {input.one} -2 {input.two}
+		"""
+
+rule transeq:
+	input:
+		"spades_assembly/contigs.fasta"
+	output:
+		"hmmsearch/contigs.pfa"
+	shell:
+		"""
+		mkdir -p hmmsearch
+		transeq -frame 6 -table 11 -filter < {input} > {output}
+		"""
+
+rule hmmsearch:
+	input:
+		"hmmsearch/contigs.pfa"
+	output:
+		domtbl="hmmsearch/contigs.pfa.domtbl",
+		hmmout="hmmsearch/contigs.pfa.hmmsearched"
+	shell:
+		"""
+		hmmsearch --max -o {output.hmmout} --domtblout {output.domtbl} pmqr.hmm {input}
+		"""
+
+rule easel:
+	input:
+		pfa="hmmsearch/contigs.pfa",
+		domtbl="hmmsearch/contigs.pfa.domtbl"
+	output:
+		"hmmsearch/best_domains.pfa"
+	shell:
+		"""
+		mkdir -p results
+		esl-sfetch --index {input.pfa}
+		grep -v "^#" {input.domtbl} | awk '{{print $1"/"$20"-"$21, $20, $21, $1}}' | esl-sfetch -Cf {input.pfa} - > {output}
+		"""
+
+rule min_length_200:
+	input:
+		"hmmsearch/best_domains.pfa"
+	output:
+		"results/best_domains.pfa"
+	shell:
+		"""
+		extract_from_fasta.py -m 200 {input} > {output}
+		"""
+	
+rule distance_matrix:
+	input:
+		domains="results/best_domains.pfa",
+		pmqr="pmqr.pfa"
+	output:
+		distmat="results/best_domains.distmat",
+		aln="results/best_domains.aln"
+	shell:
+		"""
+		cat {input.domains} {input.pmqr} |\
+		clustalo --infile=- --full --percent-id --distmat-out {output.distmat} --outfile={output.aln}
+		"""
+rule most_similar:
+	input:
+		"results/best_domains.distmat"
+	output:
+		one="results/most_similar_qnr.txt",
+		four="results/four_most_similar_qnr.txt"
+
+	shell:
+		"""
+		./get_most_similar_pmqr.py {input} > {output.one}
+		./get_most_similar_pmqr.py -n 4 {input} > {output.four}
+		"""
+
+
+
