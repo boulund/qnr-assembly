@@ -114,8 +114,8 @@ rule most_similar:
 
 	shell:
 		"""
-		./get_most_similar_pmqr.py {input} > {output.one}
-		./get_most_similar_pmqr.py -n 4 {input} > {output.four}
+		get_most_similar_pmqr.py {input} > {output.one}
+		get_most_similar_pmqr.py -n 4 {input} > {output.four}
 		"""
 
 
