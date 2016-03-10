@@ -30,7 +30,7 @@ rule trim_galore:
 		right="selected_reads/right.fastq"
 	output:
 		left="trimmed_reads/left_val_1.fq",
-		right="trimmed_reads/right_val_1.fq"
+		right="trimmed_reads/right_val_2.fq"
 	shell:
 		"""
 		mkdir -p trimmed_reads
