@@ -45,7 +45,7 @@ rule spades:
 		"spades_assembly/contigs.fasta"
 	shell:
 		"""
-		spades.py --meta -1 {input.one} -2 {input.two}
+		spades.py --meta -1 {input.one} -2 {input.two} -o spades_assembly
 		"""
 
 rule transeq:
