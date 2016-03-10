@@ -68,8 +68,11 @@ def main(options):
                 format_string = "  {:>5.2f} {}\n"*options.n
                 print(format_string.format(*most_similar))
             else:
-                most_similar = contigs[most_similar_sorted[1][0]]
-                pid = most_similar_sorted[1][1]
+                for n in range(1,len(most_similar_sorted)):
+                    if contigs[most_similar_sorted[n][0]].startswith("Qnr"):
+                        break
+                most_similar = contigs[most_similar_sorted[n][0]]
+                pid = most_similar_sorted[n][1]
                 print("{:<54} {:<54} {:>5.2f}".format(contig, most_similar, pid))
 
     
