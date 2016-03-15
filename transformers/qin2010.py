@@ -8,7 +8,7 @@ def transform_fasta_header(fastaheader):
     """
     fastq_base = fastaheader[:fastaheader.find(".raw.")+4]
     read_header = fastaheader[fastaheader.find(".raw.")+7:]
-    read_header = read_header[::-1].replace("_", ":", 3)[::-1]
+    read_header = read_header[::-1].replace("_", ":", 4)[::-1]
     return fastq_base, read_header
 
 def fastq_filename(fastq_base):
