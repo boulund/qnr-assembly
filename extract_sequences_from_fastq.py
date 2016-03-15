@@ -55,9 +55,13 @@ def main(options):
     # space delimited read headers that should be extracted from the FASTQ files.
     fastq_bases = defaultdict(list)
     for fastafile in options.fasta:
-        for header, _ in read_fasta(fastafile):
-            fastq_base, read_header = transform_fasta_header(header)
-            fastq_bases[fastq_base].append(read_header)
+        try:
+            for header, _ in read_fasta(fastafile):
+                fastq_base, read_header = transform_fasta_header(header)
+                fastq_bases[fastq_base].append(read_header)
+        except IOError:
+            print("WARNING: Could not parse {}".format(fastafile)) 
+            continue
     print("INFO: Number of keys (fastq_basenames) in header dict: {}".format(len(fastq_bases)), file=stderr)
     print("INFO: Number of headers (reads) in dict: {}".format(len(list(chain(*fastq_bases.values())))), file=stderr)
     
