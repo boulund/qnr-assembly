@@ -19,3 +19,9 @@ def transform_fasta_header(fastaheader):
     return fastq_base, read_header
 
 
+def fastq_filename(fastq_base):
+    """
+    Return a pair of complete fastq filenames for fastq_base.
+    """
+    return fastq_base+"_1.fastq", fastq_base+"_2.fastq"
+

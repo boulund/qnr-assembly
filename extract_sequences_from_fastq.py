@@ -45,8 +45,10 @@ def main(options):
     Main function.
     """
 
-    # Import the fasta header transformer
-    transform_fasta_header = importlib.import_module("transformers."+options.transformer).transform_fasta_header
+    # Import fasta header transformer functions
+    transformer = importlib.import_module("transformers."+options.transformer)
+    transform_fasta_header = transformer.transform_fasta_header
+    fastq_filename = transformer.fastq_filename
 
     # Construct a dictionary with FASTQ basenames, i.e. not including the pair
     # information (e.g. _1.fasta or _2.fasta) as keys. Values are lists of the first
@@ -72,8 +74,7 @@ def main(options):
     with left_fh, right_fh:
         for fastq_base, read_headers in fastq_bases.items():
             header_set = set(read_headers)
-            fastq_left = fastq_base+"_1.fastq"
-            fastq_right = fastq_base+"_2.fastq"
+            fastq_left, fastq_right = fastq_filename(fastq_base)
             if fastq_left in fastq_files and fastq_right in fastq_files:
                 # Iterate both FASTQ files in lock-step, making it 
                 # very easy to print out the reads in interleaved order.
@@ -91,7 +92,7 @@ def main(options):
                         print(right[2], file=right_fh)
                         print(right[3], file=right_fh)
             else:
-                print("WARNING: found no FASTQ files for {}".format(fastq_base), file=stderr)
+                print("WARNING: found no FASTQ files for {} and {}".format(fastq_left, fastq_right), file=stderr)
                 warnings_occurred = True
     if warnings_occurred:
         print("WARNING: Possible reasons for warnings include:\n"
