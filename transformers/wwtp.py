@@ -15,7 +15,7 @@ def transform_fasta_header(fastaheader):
     """
     fastq_source, read = fastaheader.split(" ", 1)[0].split("_HISEQ")
     read_header = read.split("_")
-    read_header = "HISEQ:"+":".join(read_header[1:6])+" "+":".join(read_header[6:])
+    read_header = "HISEQ:"+":".join(read_header[1:7])+" "+":".join(read_header[7:])
     fastq_base = fastq_source.rsplit("_", 1)[0]
     return fastq_base, read_header
 
