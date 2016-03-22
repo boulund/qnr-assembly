@@ -78,7 +78,7 @@ def main(options):
         right_fh = stdout
     with left_fh, right_fh:
         for fastq_base, read_headers in fastq_bases.items():
-            found_counter = 0
+            found_headers = set()
             header_set = set(read_headers)
             fastq_left, fastq_right = fastq_filename(fastq_base)
             if fastq_left in fastq_files and fastq_right in fastq_files:
@@ -89,7 +89,7 @@ def main(options):
                     left_header = left[0][1:].split(" ", 1)[0]
                     right_header = right[0][1:].split(" ", 1)[0]
                     if left_header in header_set or right_header in header_set:
-                        found_counter += 1
+                        found_headers.add((left_header, right_header))
                         print(left[0], file=left_fh)
                         print(left[1], file=left_fh)
                         print(left[2], file=left_fh)
@@ -98,8 +98,14 @@ def main(options):
                         print(right[1], file=right_fh)
                         print(right[2], file=right_fh)
                         print(right[3], file=right_fh)
-                if found_counter < len(header_set):
-                    print("WARNING: found only {} out of {} expected sequences in {} and {}".format(found_counter, len(header_set), fastq_left, fastq_right), file=stderr)
+                missing_headers = set()
+                for lh, rh in found_headers:
+                    if not (lh in header_set or rh in header_set):
+                        missing_headers.add((lh, rh)) 
+                if missing_headers:
+                    print("WARNING: The following headers were not found:")
+                    for h in missing_headers:
+                        print(h)
                     warnings_occured = True
             else:
                 print("WARNING: found no FASTQ files for {} and {}".format(fastq_left, fastq_right), file=stderr)
