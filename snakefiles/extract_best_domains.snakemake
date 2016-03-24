@@ -8,6 +8,7 @@
 # Assumes the following folder structure and files:
 # ./
 # ./pmqr.hmm
+# ./pmqr.pfa
 # ./selected_reads
 # ./selected_reads/left.fastq
 # ./selected_reads/right.fastq
@@ -17,10 +18,9 @@ rule all:
 	input:
 		"results/best_domains.distmat",
 		"results/best_domains.aln",
+		"results/best_domains.nfa",
 		"results/most_similar_qnr.txt",
 		"results/four_most_similar_qnr.txt"
-
-
 
 
 
@@ -111,12 +111,20 @@ rule most_similar:
 	output:
 		one="results/most_similar_qnr.txt",
 		four="results/four_most_similar_qnr.txt"
-
 	shell:
 		"""
 		get_most_similar_pmqr.py {input} > {output.one}
 		get_most_similar_pmqr.py -n 4 {input} > {output.four}
 		"""
 
-
+rule extract_domain_nucleotides:
+	input:
+		pfa="results/best_domains.pfa",
+		nfa="spades_assembly/contigs.fasta"
+	output:
+		"results/best_domains.nfa"
+	shell:
+		"""
+		extract_nucleotide_ranges.py {input.pfa} {input.nfa} --outfile {output}
+		"""
 
