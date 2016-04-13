@@ -17,9 +17,9 @@ def parse_args(argv):
     desc = """Extract sub sequences from FASTA files. Fredrik Boulund 2016"""
     parser = argparse.ArgumentParser(description=desc)
     parser.add_argument("PFA",
-            help="Protein FASTA file(s) to read headers with range information from.")
+            help="Protein FASTA file to read headers with range information from.")
     parser.add_argument("NFA",
-            help="Nucleotide FASTA file(s) to read sub sequences from.")
+            help="Nucleotide FASTA file to read sub sequences from.")
     parser.add_argument("-p", "--prefix", 
             help="FASTA header prefix to replace previous header with.")
     parser.add_argument("-o", "--outfile", metavar="FILE", dest="outfile",
