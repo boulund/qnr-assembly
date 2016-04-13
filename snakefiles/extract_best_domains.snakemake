@@ -13,6 +13,8 @@
 # ./selected_reads/left.fastq
 # ./selected_reads/right.fastq
 
+import os
+cwd = os.path.basename(os.getcwd())
 
 rule all:
 	input:
@@ -125,6 +127,6 @@ rule extract_domain_nucleotides:
 		"results/best_domains.nfa"
 	shell:
 		"""
-		extract_nucleotide_ranges.py {input.pfa} {input.nfa} --outfile {output}
+		extract_nucleotide_ranges.py {input.pfa} {input.nfa} --prefix {cwd} --outfile {output}
 		"""
 
